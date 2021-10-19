@@ -3,7 +3,7 @@ import { reducer } from './todos/todosReducer';
 
 export const store = configureStore({
   reducer: {
-    reducer,
+    todos: reducer,
   },
   devTools: process.env.NODE_ENV === 'development',
 });

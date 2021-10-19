@@ -1,51 +1,97 @@
-import { combineReducers, createSlice, createReducer } from '@reduxjs/toolkit';
-import { fetchTodos, addTodo, deleteTodo } from './todosOperations';
+import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+
+const getInitialTodoState = () => {
+  const savedTodos = localStorage.getItem('todos');
+  return savedTodos ? JSON.parse(savedTodos) : [];
+};
 
 const initialState = {
-  todos: [],
+  items: getInitialTodoState(),
   isLoading: false,
   error: null,
 };
 
-export const { actions, reducer } = createSlice({
+const axiosInstance = axios.create({
+  baseURL: 'https://jsonplaceholder.typicode.com/todos',
+});
+
+export const fetchTodos = createAsyncThunk(
+  'todos',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosInstance.get('');
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+const {actions, reducer} = createSlice({
   name: 'todos',
   initialState,
+  reducers: {
+    addTodo(state, { payload }) {
+      state.items.push(payload);
+    },
+    deleteTodo(state, { payload }) {
+      const { id } = payload;
+      const existingTodo = state.items.find(item => item.id === id);
+      if (existingTodo)
+        state.items = state.items.filter(item => item.id !== id);
+    },
+  },
   extraReducers: {
-    [fetchTodos.pending](state) {
+    [fetchTodos.pending]: state => {
       state.isLoading = true;
     },
-    [fetchTodos.fulfilled](state, { payload }) {
-      state.todos = payload;
+    [fetchTodos.fulfilled]: (state, { payload }) => {
+      state.items = [...state.items, ...payload];
       state.isLoading = false;
     },
-    [fetchTodos.rejected](state, { payload }) {
-      state.error = payload;
-    },
-    [addTodo.pending](state) {
-      state.isLoading = true;
-    },
-    [addTodo.fulfilled](state, { payload }) {
-      state.todos = [...state, payload];
-      state.isLoading = true;
-    },
-    [addTodo.rejected](state, { payload }) {
-      state.error = payload;
-    },
-    [deleteTodo.pending](state) {
-      state.isLoading = true;
-    },
-    [deleteTodo.fulfilled](state, { payload }) {
-      state.todos.filter(({ id }) => id !== payload);
-      state.isLoading = true;
-    },
-    [deleteTodo.rejected](state, { payload }) {
+    [fetchTodos.rejected]: (state, { payload }) => {
       state.error = payload;
     },
   },
 });
 
-// const filterReducer = createReducer('', {
-//   [filterTodo]: (_, { payload }) => payload,
+export { actions, reducer };
+
+// const { actions, reducer } = createSlice({
+//   name: 'todos',
+//   initialState,
+//   extraReducers: {
+//     [fetchTodos.pending](state) {
+//       state.isLoading = true;
+//     },
+//     [fetchTodos.fulfilled](state, { payload }) {
+//       state.todos = payload;
+//       state.isLoading = false;
+//     },
+//     [fetchTodos.rejected](state, { payload }) {
+//       state.error = payload;
+//     },
+//     // [addTodo.pending](state) {
+//     //   state.isLoading = true;
+//     // },
+//     // [addTodo.fulfilled](state, { payload }) {
+//     //   state.todos = [...state, payload];
+//     //   state.isLoading = true;
+//     // },
+//     // [addTodo.rejected](state, { payload }) {
+//     //   state.error = payload;
+//     // },
+//     // [deleteTodo.pending](state) {
+//     //   state.isLoading = true;
+//     // },
+//     // [deleteTodo.fulfilled](state, { payload }) {
+//     //   state.todos.filter(({ id }) => id !== payload);
+//     //   state.isLoading = true;
+//     // },
+//     // [deleteTodo.rejected](state, { payload }) {
+//     //   state.error = payload;
+//     // },
+//   },
 // });
-
-
