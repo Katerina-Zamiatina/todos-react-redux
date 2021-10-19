@@ -1,0 +1,21 @@
+@import '../../styles/main.scss';
+
+.container {
+  width: 100%;
+  margin-top: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 15px;
+
+  @include for-size(mobile) {
+    width: calc(480px - 18px);
+  }
+
+  @include for-size(tablet) {
+    width: calc(768px - 18px);
+  }
+
+  @include for-size(desktop) {
+    width: calc(1200px - 18px);
+  }
+}

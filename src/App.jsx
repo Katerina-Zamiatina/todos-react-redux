@@ -1,11 +1,12 @@
-import './App.css';
+import './App.module.scss';
+import Container from './components/Container';
 import TodosView from './components/TodosView/TodosView';
 
 function App() {
   return (
-    <div className="App">
+    <Container>
       <TodosView />
-    </div>
+    </Container>
   );
 }
 

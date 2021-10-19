@@ -1,0 +1,6 @@
+@import '../../styles/main.scss';
+
+.button {
+  @include blueBtn();
+  margin-bottom: 20px;
+}

@@ -21,7 +21,7 @@ export const fetchTodos = createAsyncThunk(
   'todos',
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.get('');
+      const { data } = await axiosInstance.get('', { params: { _limit: 10 } });
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -29,7 +29,7 @@ export const fetchTodos = createAsyncThunk(
   },
 );
 
-const {actions, reducer} = createSlice({
+const { actions, reducer } = createSlice({
   name: 'todos',
   initialState,
   reducers: {
@@ -38,8 +38,8 @@ const {actions, reducer} = createSlice({
     },
     deleteTodo(state, { payload }) {
       const { id } = payload;
-      const existingTodo = state.items.find(item => item.id === id);
-      if (existingTodo)
+      // const existingTodo = state.items.find(item => item.id === id);
+      // if (existingTodo)
         state.items = state.items.filter(item => item.id !== id);
     },
   },

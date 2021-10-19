@@ -1,37 +1,33 @@
 import { useCallback, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 import { useSelector, useDispatch } from 'react-redux';
 
-import { fetchTodos, actions } from '../../redux/todos/todosReducer';
+import { fetchTodos } from '../../redux/todos/todosReducer';
+import AddTodo from '../AddTodo';
+import TodoList from '../TodosList';
+import styles from './TodosView.module.scss';
 
 const TodosView = () => {
   const dispatch = useDispatch();
 
-  const { items, isLoading, error } = useSelector(store => store.todos);
+  const { items } = useSelector(store => store.todos);
 
   const getTodosFromApi = useCallback(
     () => !items.length && dispatch(fetchTodos()),
-    [],
+    [items.length, dispatch],
   );
 
   useEffect(() => {
     return localStorage.setItem('todos', JSON.stringify(items));
   }, [items]);
 
-  const addTodo = ({ title }) => {
-    const newTodo = {
-      id: uuidv4(),
-      title,
-      completed: false,
-    };
-    actions.addTodo(newTodo);
-  };
-
-  console.log(' TODOVIEW', items);
   return (
     <div>
-      <div onClick={getTodosFromApi}>get todos</div>
+      <AddTodo />
+      <button onClick={getTodosFromApi} className={styles.button}>
+        Load Todos
+      </button>
+      <TodoList />
     </div>
   );
 };
