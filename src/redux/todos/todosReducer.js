@@ -7,12 +7,6 @@ const getInitialTodoState = () => {
   return savedTodos ? JSON.parse(savedTodos) : [];
 };
 
-const initialState = {
-  items: getInitialTodoState(),
-  isLoading: false,
-  error: null,
-};
-
 const axiosInstance = axios.create({
   baseURL: 'https://jsonplaceholder.typicode.com/todos',
 });
@@ -29,6 +23,12 @@ export const fetchTodos = createAsyncThunk(
   },
 );
 
+const initialState = {
+  items: getInitialTodoState(),
+  isLoading: false,
+  error: null,
+};
+
 const { actions, reducer } = createSlice({
   name: 'todos',
   initialState,
@@ -36,11 +36,18 @@ const { actions, reducer } = createSlice({
     addTodo(state, { payload }) {
       state.items.push(payload);
     },
+    updateTodo(state, { payload }) {
+      const { id } = payload;
+      state.items.map(item =>
+        item.id === id ? { ...item, completed: !item.completed } : item,
+      );
+    },
     deleteTodo(state, { payload }) {
       const { id } = payload;
-      // const existingTodo = state.items.find(item => item.id === id);
-      // if (existingTodo)
+      const existingTodo = state.items.find(item => item.id === id);
+      if (existingTodo) {
         state.items = state.items.filter(item => item.id !== id);
+      }
     },
   },
   extraReducers: {
