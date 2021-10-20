@@ -1,27 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  addTodoAsync,
+  fetchTodosAsync,
+  deleteTodoAsync,
+  updateTodoAsync,
+} from '../todos/todosOperations';
 
 const getInitialTodoState = () => {
   const savedTodos = localStorage.getItem('todos');
   return savedTodos ? JSON.parse(savedTodos) : [];
 };
-
-const axiosInstance = axios.create({
-  baseURL: 'https://jsonplaceholder.typicode.com/todos',
-});
-
-export const fetchTodos = createAsyncThunk(
-  'todos',
-  async (_, { rejectWithValue }) => {
-    try {
-      const { data } = await axiosInstance.get('', { params: { _limit: 10 } });
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  },
-);
 
 const initialState = {
   items: getInitialTodoState(),
@@ -34,13 +22,16 @@ const { actions, reducer } = createSlice({
   initialState,
   reducers: {
     addTodo(state, { payload }) {
-      state.items.push(payload);
+      state.items = [...state.items, payload];
     },
     updateTodo(state, { payload }) {
-      const { id } = payload;
-      state.items.map(item =>
-        item.id === id ? { ...item, completed: !item.completed } : item,
-      );
+      const todo = state.items.find(item => item.id === payload.id);
+      if (todo) {
+        todo.completed = !todo.completed;
+      }
+      // state.items.map(item =>
+      //   item.id === payload.id ? { ...item, completed: !item.completed } : item,
+      // );
     },
     deleteTodo(state, { payload }) {
       const { id } = payload;
@@ -51,15 +42,27 @@ const { actions, reducer } = createSlice({
     },
   },
   extraReducers: {
-    [fetchTodos.pending]: state => {
-      state.isLoading = true;
-    },
-    [fetchTodos.fulfilled]: (state, { payload }) => {
+    [fetchTodosAsync.fulfilled]: (state, { payload }) => {
       state.items = [...state.items, ...payload];
       state.isLoading = false;
     },
-    [fetchTodos.rejected]: (state, { payload }) => {
-      state.error = payload;
+    [addTodoAsync.fulfilled]: (state, { payload }) => {
+      state.items = [...state.items, payload];
+      state.isLoading = false;
+    },
+    [updateTodoAsync.fulfilled]: (state, { payload }) => {
+      const todo = state.items.find(item => item.id === payload.id);
+      if (todo) {
+        todo.completed = !todo.completed;
+      }
+      // state.items.map(item =>
+      //   item.id === payload.id ? { ...item, completed: !item.completed } : item,
+      // );
+      state.isLoading = false;
+    },
+    [deleteTodoAsync.fulfilled]: (state, { payload }) => {
+      state.isLoading = false;
+      return state.items.filter(item => item.id !== payload.id);
     },
   },
 });

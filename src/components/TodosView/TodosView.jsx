@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTodos } from '../../redux/todos/todosReducer';
+import { fetchTodosAsync } from '../../redux/todos/todosOperations';
 import AddTodo from '../AddTodo';
 import TodoList from '../TodosList';
 import styles from './TodosView.module.scss';
@@ -10,7 +10,7 @@ const TodosView = () => {
 
   const { items } = useSelector(store => store.todos);
 
-  const getTodosFromApi = useCallback(() => dispatch(fetchTodos()), [dispatch]);
+  const getTodosFromApi = useCallback(() => dispatch(fetchTodosAsync()), [dispatch]);
 
   useEffect(() => {
     return localStorage.setItem('todos', JSON.stringify(items));
